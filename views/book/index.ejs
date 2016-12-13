@@ -1,0 +1,180 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head 
+         content must come *after* these tags -->
+    
+    <title>Home Page</title>  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <style>
+	
+	#bookTile :hover {
+    
+	    color: green;
+	}
+  </style>
+</head>
+<body>
+<nav class="mynavbar" id="mynav" style="position: fixed;width: 100%;background-color:  rgba(241, 241, 241, 0.8);z-index: 999;">
+            <div class="container-fluid">
+              <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                </button>
+
+              </div>
+              <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+
+                <li><a href="/books">Home</a></li>
+                
+                <li><a href="/transactions">Transactions</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                  <li style="margin-top: 1em;margin-right: 1em;float: left;font-size: medium;color: #bb0e0e;"class="active"><%- req.session.user.name %></li>
+                  <a href="/session/destroy" style="margin-top:0.5em" class="btn btn-warning">
+                    <span class="glyphicon glyphicon-off"></span> Log Out
+                  </a>
+                </ul>
+              </div>
+            </div>
+          </nav>
+<div ng-app="myapp" ng-controller="myController" ng-cloak>
+<div class="container" style="padding-top: 5em;">
+ 
+  
+  <!-- Left-aligned media object -->
+  <div class="row" style="height: 7em;" id="bookTile" id="bookTile" ng-repeat="book in bookList">
+ 
+    <div class="media-left">
+      <img src="{{book.imgurl}}" class="media-object" style="width:60px">
+    </div>
+    <div class="media-body">
+      <h4 class="media-heading">{{book.name}}</h4>
+      <p>{{book.author}}</p>
+	  <p ng-show="{{book.availability}}"><span  style="color:green;" class="glyphicon glyphicon-ok">AVAILABLE</span><button type="button" class="btn btn-success" style="float:right"data-toggle="modal" ng-click="issueBook(book)" data-target="#myModal">Issue Book</button> </p>
+	  <div class="row" style="margin:0px;padding:0px" ng-show="!{{book.availability}}"><span  style="color:red;" class="glyphicon glyphicon-remove"> NOT AVAILABLE</span>
+	  <form action="/transaction/create" method="POST">
+	  <input type="hidden" name="type" value="RETURN"/>
+	  <input type="hidden" name="agent" value=<%= req.session.user.name %> />
+	  <input type="hidden" name="entity" value="{{book.name}}">
+	  <input ng-show="!{{book.availability}}" type="submit" class="btn btn-danger" ng-click="toggleAvailability(book.id)" style="display:inline-block;float:right" value="Submit Book Back "/>
+	  </form>
+	  </div>
+	 
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Issue Book</h4>
+        </div>
+        <div class="modal-body" style="height: 22em;">
+           <form class="form-horizontal form-signin" style="padding-right: 2em;" action="/transaction/create" method="POST">
+    <div class="form-group">
+      <label class="control-label col-sm-3" for="bookId">Book Id:</label>
+      <div class="col-sm-9">
+        <input type="text" ng-model="transac.bookId" class="form-control" name="bookId" id="bookId" placeholder="">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-3" for="bookName">Book Name:</label>
+      <div class="col-sm-9">
+        <input type="text" ng-model="transac.bookName" class="form-control" name="bookName" id="bookName" placeholder="">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-3" for="issuedTo">Issued To:</label>
+      <div class="col-sm-9">
+        <input type="text"   class="form-control" name="issuedTo" id="issuedTo" placeholder="Enter Assigned To">
+      </div>
+    </div>
+      <div class="form-group">
+      <label class="control-label col-sm-3" for="issuedBy">Issued By:</label>
+      <div class="col-sm-9" >
+        <input type="text" class="form-control" name="issuedBy" id="issuedBy" value=<%= req.session.user.name %> placeholder="">
+      </div>
+    </div>
+     <div class="form-group">
+      <label class="control-label col-sm-3" for="duration">Duration:</label>
+      <div class="col-sm-9">
+        <input type="text" ng-model="transac.duration" class="form-control"  name="duration" id="duration" placeholder="Enter Duration">
+      </div>
+    </div>
+	<input type="hidden" name="dueDate" ng-model="transac.dueDate">
+	<input type="hidden" name="type" value="BORROW"/>
+    <input type="hidden" name="_csrf" value="<%= _csrf %>" />
+    <input  type="submit" ng-click="toggleAvailability(transac.bookId)" style="float:right" value="ISSUE" class="btn btn-success">
+  </form> 
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+  
+    </div>
+	
+
+ </div> <hr>
+<div>  
+
+</div>
+<script>
+	var app = angular.module('myapp', []);
+	 app.controller('myController',['$scope','$http', function ($scope,$http) {
+			function init(){
+				$http.get('/book').then(function (response){
+					$scope.bookList = response.data;
+				});
+			};
+			init();
+			
+			$scope.transac = {};
+			$scope.issueBook = function(obj){
+				$scope.transac.bookId = obj.id;
+				$scope.transac.bookName = obj.name;
+				console.log(obj.createdAt);
+				$scope.transac.dueDate =  obj.createdAt.setDate(obj.createdAt.getDate() + obj.duration); 
+				console.log("DEw Date:"+$scope.transac.dueDate);
+				
+				
+			}
+		   $scope.toggleAvailability = function(id){
+				$http.put('/book/'+id).then(function (response){
+					$scope.updatedBook = response.data;
+					init();
+				});
+				
+		   }
+			$scope.makeTransaction = function(obj){
+				console.log(JSON.stringify(obj));
+				$http.post('/transactions',obj).then(function (response){
+					$scope.transaction = response.data;
+					init();
+				});
+			}
+			
+            
+        }]);
+</script>
+<!--SCRIPTS-->
+<script src="/js/dependencies/sails.io.js"></script>
+<!--SCRIPTS END-->
+</body>
+</html>

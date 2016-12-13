@@ -1,2 +1,3 @@
-# LibraryManagementDemoApp
-A Light weight library management Demo App using Mean Stack
+# lms
+
+a [Sails](http://sailsjs.org) application

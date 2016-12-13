@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head 
+         content must come *after* these tags -->
+    
+    <title>Home Page</title>  
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+	<style>
+	</style>
+</head>
+<body>
+<nav class="mynavbar" id="mynav" style="position: fixed;width: 100%;background-color:  rgba(241, 241, 241, 0.8);z-index: 999;">
+            <div class="container-fluid">
+              <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                </button>
+
+              </div>
+              <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+
+               <li><a href="/books">Home</a></li>
+                
+                <li><a href="/transactions">Transactions</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                  <li style="margin-right:1em;margin-top:1em"class="active"><%- req.session.user.name %></li>
+                  <a href="/session/destroy" style="margin-top:0.5em" class="btn btn-warning">
+                    <span class="glyphicon glyphicon-off"></span> Log Out
+                  </a>
+                </ul>
+              </div>
+            </div>
+          </nav>
+<div class="container" style="text-align: start;padding-top:5em"ng-app="transactionapp" ng-controller="transactionController" ng-cloak>
+<h3>Borrow Transactions</h3>
+<div style="height:20em;overflow-y:scroll">
+	<table class="table table-hover" style="MARGIN-TOP: 2EM;border: 1px solid;box-shadow: 2px 2px 7px;height: 20em;overflow-y:scroll">
+	
+		<tr>
+			<th>Transaction ID</th>
+			<th>Book Name</th>
+			<th>Issued To</th>
+			<th>Issued By</th>
+			<th>Duration</th>
+		</tr>
+		<tr ng-repeat="transaction in borrowTransactions">
+			<td>{{transaction.id}}</td>
+			<td>{{transaction.bookName}}</td>
+			<td>{{transaction.issuedTo}}</td>
+			<td>{{transaction.issuedBy}}</td>
+			<td>{{transaction.duration}}</td>
+		</tr>
+	</table>
+</div>	
+<h3>Return Transactions</h3>
+<div style="height:20em;overflow-y:scroll">	
+	<table class="table table-hover" style="MARGIN-TOP: 2EM;border: 1px solid;box-shadow: 2px 2px 7px;height: 20em;overflow-y:scroll">
+	
+		<tr>
+			<th>Transaction ID</th>
+			<th>Agent Name</th>
+			<th>Book Name</th>
+		</tr>
+		<tr ng-repeat="transaction in returnTransactions">
+			<td>{{transaction.id}}</td>
+			<td>{{transaction.agent}}</td>
+			<td>{{transaction.entity}}</td>
+		</tr>
+	</table>	
+<div>			
+
+	
+</div>
+<script>
+	var app = angular.module('transactionapp', []);
+	 app.controller('transactionController',['$scope','$http', function ($scope,$http) {
+			$scope.borrowTransactions = [];
+			$scope.returnTransactions = [];
+			function init(){
+				$http.get('/transaction').then(function (response){
+					$scope.featuredTransactions = response.data;
+					angular.forEach($scope.featuredTransactions, function(trans, key) {
+						if(trans.type === 'BORROW'){
+							console.log("borrow"+JSON.stringify(trans));
+							$scope.borrowTransactions.push(trans);
+						}
+						else{
+							console.log("return"+JSON.stringify(trans));
+							$scope.returnTransactions.push(trans);
+						}
+					});
+				});
+				
+			};
+			init();
+			
+				
+				
+				
+				
+			
+			
+        }]);
+			
+			
+            
+</script>
+<!--SCRIPTS-->
+<script src="/js/dependencies/sails.io.js"></script>
+<!--SCRIPTS END-->
+</body>
+</html>
+
